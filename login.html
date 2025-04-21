@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RUMBLE | Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      overflow: hidden;
+    }
+    /* Styling for individual bubbles */
+    .bubble {
+      position: absolute;
+      border-radius: 9999px;
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+    /* Keyframes for bubble float animation */
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-110vh);
+        opacity: 0;
+      }
+    }
+    /* Gradient-styled text for RUMBLE heading */
+    .rumble-text {
+      font-weight: 800;
+      font-size: 2.5rem;
+      background: linear-gradient(to right, #3494e6, #6dd5fa, #ffffff, #f9a1ff, #c471ed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-purple-800 relative overflow-hidden">
+  <!-- Container for animated bubbles -->
+  <div id="bubbles"></div>
+
+  <!-- Login form container -->
+  <div class="bg-white/10 backdrop-blur-md p-8 rounded-3xl w-full max-w-md shadow-lg z-10">
+    <h1 class="rumble-text mb-6">RUMBLE</h1>
+    <form class="space-y-4">
+      <input
+        type="email"
+        placeholder="Email"
+        class="w-full p-3 rounded-xl bg-white/10 placeholder-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        class="w-full p-3 rounded-xl bg-white/10 placeholder-gray-300 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <button
+        type="submit"
+        class="w-full p-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition"
+      >
+        Log In
+      </button>
+    </form>
+    <p class="text-center text-white mt-6">
+      New? <a href="#" class="underline text-blue-300">Create Account</a>
+    </p>
+  </div>
+
+  <script>
+    // Container for bubbles
+    const bubblesContainer = document.getElementById('bubbles');
+
+    // Array of semi-transparent colors to complement the background
+    const bubbleColors = [
+      'rgba(173, 216, 230, 0.2)', // lightblue
+      'rgba(147, 112, 219, 0.2)', // mediumpurple
+      'rgba(255, 182, 193, 0.2)', // lightpink
+      'rgba(144, 238, 144, 0.2)', // lightgreen
+      'rgba(135, 206, 235, 0.2)', // skyblue
+      'rgba(255, 160, 122, 0.2)'  // lightsalmon
+    ];
+
+    const bubbleCount = 20; // Max number of bubbles
+    const spacing = 100 / bubbleCount; // Even horizontal distribution
+
+    // Generate all bubbles
+    for (let i = 0; i < bubbleCount; i++) {
+      const bubble = document.createElement('div');
+
+      // Random size and animation parameters
+      const size = Math.floor(Math.random() * 100) + 20; // 20–120px
+      const duration = Math.random() * 20 + 10; // 10–30s
+      const delay = Math.random() * 10; // 0–10s
+      const left = i * spacing + Math.random() * spacing; // Evenly spaced with randomness
+      const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+
+      // Apply styles
+      bubble.className = 'bubble';
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${left}%`;
+      bubble.style.bottom = `-${size}px`;
+      bubble.style.background = color;
+      bubble.style.animation = `floatUp ${duration}s linear ${delay}s infinite`;
+
+      // Add bubble to DOM
+      bubblesContainer.appendChild(bubble);
+    }
+  </script>
+</body>
+</html>
