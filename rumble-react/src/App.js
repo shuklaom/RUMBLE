@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
 
 // Import components
 import LandingPage from './components/landing/LandingPage';

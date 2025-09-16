@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BubbleBackground from '../common/BubbleBackground';
 import { useAuth } from '../../contexts/AuthContext';
-import './CreateAccount.css';
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
