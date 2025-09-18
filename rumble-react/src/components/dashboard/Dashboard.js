@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { robotService } from '../../services/apiMock';
@@ -101,11 +101,11 @@ const Dashboard = () => {
   };
 
   // Close dropdown when clicking outside
-  const handleClickOutside = (e) => {
+  const handleClickOutside = useCallback((e) => {
     if (isDropdownOpen && !e.target.closest('#userProfile')) {
       setIsDropdownOpen(false);
     }
-  };
+  }, [isDropdownOpen]);
 
   // Add event listener for clicks outside the dropdown
   React.useEffect(() => {
@@ -113,7 +113,7 @@ const Dashboard = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, [handleClickOutside]);
 
   if (loading && !dashboardStats) {
     return (

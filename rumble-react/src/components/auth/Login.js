@@ -50,12 +50,19 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
+    // Validate field name to prevent object injection
+    const validFields = ['email', 'password'];
+    if (!validFields.includes(name)) {
+      return;
+    }
+    
     setFormData({
       ...formData,
       [name]: value
     });
     
     // Clear error for this field when user types
+    // eslint-disable-next-line security/detect-object-injection
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -153,7 +160,16 @@ const Login = () => {
           </button>
         </form>
         
-        <p className="text-center text-white mt-6">
+        <div className="text-center mt-6">
+          <Link 
+            to="/" 
+            className="inline-block bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-white/50 mb-4"
+          >
+            ← Back to Home
+          </Link>
+        </div>
+        
+        <p className="text-center text-white">
           New? <Link to="/create-account" className="underline text-blue-300 hover:text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded">Create Account</Link>
         </p>
       </div>

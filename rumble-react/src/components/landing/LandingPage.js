@@ -3,8 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LandingPage = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, clearAuth } = useAuth();
   const navigate = useNavigate();
+
+  const handleClearAuth = () => {
+    clearAuth();
+    window.location.reload();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white font-sans">
@@ -85,6 +90,22 @@ const LandingPage = () => {
       {/* Footer */}
       <footer id="footer" className="bg-white/10 backdrop-blur py-6 text-center text-gray-300 border-t border-white/10">
         <p className="text-sm">&copy; 2025 <span className="text-green-300 font-bold">RUMBLE</span> Project. Team SDDEC25-16.</p>
+        
+        {/* Debug section - remove in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-4 border-t border-white/20 pt-4">
+            <p className="text-xs text-gray-400 mb-2">Debug Tools:</p>
+            <div className="flex justify-center gap-4">
+              <button 
+                onClick={handleClearAuth}
+                className="text-xs bg-red-500/20 hover:bg-red-500/30 px-3 py-1 rounded text-red-300"
+              >
+                Clear Auth State
+              </button>
+              <span className="text-xs">Auth Status: {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</span>
+            </div>
+          </div>
+        )}
       </footer>
     </div>
   );

@@ -22,18 +22,32 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('rumbleToken');
     
     if (storedUser && storedToken) {
-      setCurrentUser(JSON.parse(storedUser));
-      setToken(storedToken);
-      
-      // Verify token with the mock API
-      authService.getCurrentUser(storedToken)
-        .catch(() => {
-          // If token verification fails, log the user out
-          localStorage.removeItem('rumbleUser');
-          localStorage.removeItem('rumbleToken');
-          setCurrentUser(null);
-          setToken(null);
-        });
+      try {
+        const user = JSON.parse(storedUser);
+        
+        // Verify token with the mock API
+        authService.getCurrentUser(storedToken)
+          .then(() => {
+            // Only set user as authenticated if token verification succeeds
+            setCurrentUser(user);
+            setToken(storedToken);
+          })
+          .catch(() => {
+            // If token verification fails, log the user out
+            console.log('Token verification failed, clearing stored auth data');
+            localStorage.removeItem('rumbleUser');
+            localStorage.removeItem('rumbleToken');
+            setCurrentUser(null);
+            setToken(null);
+          });
+      } catch (error) {
+        // If stored user data is corrupted, clear it
+        console.log('Corrupted user data found, clearing localStorage');
+        localStorage.removeItem('rumbleUser');
+        localStorage.removeItem('rumbleToken');
+        setCurrentUser(null);
+        setToken(null);
+      }
     }
     
     setLoading(false);
@@ -93,7 +107,17 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('rumbleToken');
       setCurrentUser(null);
       setToken(null);
+      setError(null);
     }
+  };
+
+  // Function to clear authentication state (for debugging/testing)
+  const clearAuth = () => {
+    localStorage.removeItem('rumbleUser');
+    localStorage.removeItem('rumbleToken');
+    setCurrentUser(null);
+    setToken(null);
+    setError(null);
   };
 
   // Context value
@@ -103,6 +127,7 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
+    clearAuth,
     error,
     isAuthenticated: !!currentUser
   };
