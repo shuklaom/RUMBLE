@@ -61,7 +61,7 @@ const Login = () => {
       [name]: value
     });
     
-    // Clear error for this field when user types
+    // Clear field-specific error when user types
     // eslint-disable-next-line security/detect-object-injection
     if (formErrors[name]) {
       setFormErrors({

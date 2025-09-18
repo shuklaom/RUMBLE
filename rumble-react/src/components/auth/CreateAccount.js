@@ -5,6 +5,8 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
+    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -31,6 +33,22 @@ const CreateAccount = () => {
 
   const validateForm = () => {
     const errors = {};
+    
+    // Name validation
+    if (!formData.name) {
+      errors.name = 'Name is required';
+    } else if (formData.name.length < 2) {
+      errors.name = 'Name must be at least 2 characters long';
+    }
+    
+    // Username validation
+    if (!formData.username) {
+      errors.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errors.username = 'Username must be at least 3 characters long';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errors.username = 'Username can only contain letters, numbers, and underscores';
+    }
     
     // Email validation
     if (!formData.email) {
@@ -61,7 +79,7 @@ const CreateAccount = () => {
     const { name, value } = e.target;
     
     // Validate field name to prevent object injection
-    const validFields = ['email', 'password', 'confirmPassword'];
+    const validFields = ['name', 'username', 'email', 'password', 'confirmPassword'];
     if (!validFields.includes(name)) {
       return;
     }
@@ -71,7 +89,7 @@ const CreateAccount = () => {
       [name]: value
     });
     
-    // Clear error for this field when user types
+    // Clear field-specific error when user types
     // eslint-disable-next-line security/detect-object-injection
     if (formErrors[name]) {
       setFormErrors({
@@ -92,7 +110,12 @@ const CreateAccount = () => {
       setError('');
       setLoading(true);
       
-      await signup(formData.email, formData.password);
+      await signup({
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to create an account');
@@ -118,6 +141,52 @@ const CreateAccount = () => {
         )}
         
         <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+          {/* Name input */}
+          <div>
+            <label htmlFor="name" className="block uppercase tracking-wide text-white text-xs font-bold mb-2">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="appearance-none block w-full bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white/30 focus:border-white transition-all duration-300"
+              placeholder="Enter your full name"
+              autoComplete="name"
+              required
+              aria-describedby={formErrors.name ? "name-error" : undefined}
+              aria-invalid={!!formErrors.name}
+            />
+            {formErrors.name && (
+              <p id="name-error" className="text-red-300 text-xs italic mt-1" role="alert">
+                {formErrors.name}
+              </p>
+            )}
+          </div>
+
+          {/* Username input */}
+          <div>
+            <label htmlFor="username" className="block uppercase tracking-wide text-white text-xs font-bold mb-2">Username</label>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="appearance-none block w-full bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white/30 focus:border-white transition-all duration-300"
+              placeholder="Choose a username"
+              autoComplete="username"
+              required
+              aria-describedby={formErrors.username ? "username-error" : undefined}
+              aria-invalid={!!formErrors.username}
+            />
+            {formErrors.username && (
+              <p id="username-error" className="text-red-300 text-xs italic mt-1" role="alert">
+                {formErrors.username}
+              </p>
+            )}
+          </div>
+
           {/* Email input */}
           <div>
             <label htmlFor="email" className="block uppercase tracking-wide text-white text-xs font-bold mb-2">Email</label>
