@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { robotService } from '../../services/apiMock';
+import RobotMap from '../maps/RobotMap';
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -143,10 +144,6 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleDropdown = () => {
-    // Removed - no longer needed
   };
 
   const handleLogout = async () => {
@@ -430,21 +427,15 @@ const Dashboard = () => {
           {/* Live Cleaning Map Panel */}
           <div className="bg-white/10 backdrop-blur p-6 rounded-xl shadow">
             <h2 className="text-xl font-semibold mb-4">Live Robot Location</h2>
-            {/* Placeholder for future map integration */}
-            <div className="h-64 bg-black/20 rounded-xl flex items-center justify-center">
-              {selectedRobot && (
-                <div className="text-center">
-                  <div className="text-gray-300 mb-2">{selectedRobot.name}</div>
-                  <div className="text-sm text-gray-400">
-                    Lat: {selectedRobot.location.lat.toFixed(6)}<br />
-                    Lng: {selectedRobot.location.lng.toFixed(6)}
-                  </div>
-                </div>
-              )}
-              {!selectedRobot && (
-                <span className="text-gray-300">Select a robot to view location</span>
-              )}
-            </div>
+            {/* Interactive Map */}
+            <RobotMap
+              robots={robotData}
+              sharedRobots={sharedRobotData}
+              selectedRobot={selectedRobot}
+              onRobotSelect={handleRobotSelection}
+              height="300px"
+              className="rounded-lg overflow-hidden"
+            />
           </div>
 
           {/* Robot Status Panel */}
