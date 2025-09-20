@@ -141,8 +141,6 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
       const allRobotsWithLocation = [...robots, ...sharedRobots].filter(robot => robot.location);
       
       allRobotsWithLocation.forEach(robot => {
-        const isShared = sharedRobots.some(sr => sr.id === robot.id);
-        
         const getMarkerColor = () => {
           switch (robot.status) {
             case 'active': return '#10B981';
