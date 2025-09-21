@@ -355,16 +355,17 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer id="footer" className="bg-gray-900/80 backdrop-blur py-6 text-center text-gray-300 border-t border-purple-600/30">
+      <footer id="footer" className="bg-white/10 backdrop-blur py-6 text-center text-gray-300 border-t border-white/10">
         <p className="text-sm mb-2">
-          &copy; 2025 <span className="text-green-400 font-bold">RUMBLE</span> Project | Iowa State University CPRE 4910
+          &copy; 2025 <span className="text-green-300 font-bold">RUMBLE</span> Project | Iowa State University Senior Design
         </p>
         <p className="text-xs text-gray-400">
           Outdoor Roomba - Autonomous Litter Collection System | Team SDDEC25-16
         </p>
+        
         {/* Debug section - remove in production */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 border-t border-purple-600/30 pt-4">
+          <div className="mt-4 border-t border-white/20 pt-4">
             <p className="text-xs text-gray-400 mb-2">Debug Tools:</p>
             <div className="flex justify-center gap-4">
               <button 
