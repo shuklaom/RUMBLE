@@ -10,14 +10,16 @@ const BubbleBackground = () => {
     // Clean up any existing bubbles
     bubblesContainer.innerHTML = '';
 
-    // Array of semi-transparent colors to complement the background
+    // Array of colors to complement the dark slate background with emerald/cyan theme
     const bubbleColors = [
-      'rgba(173, 216, 230, 0.2)', // lightblue
-      'rgba(147, 112, 219, 0.2)', // mediumpurple
-      'rgba(255, 182, 193, 0.2)', // lightpink
-      'rgba(144, 238, 144, 0.2)', // lightgreen
-      'rgba(135, 206, 235, 0.2)', // skyblue
-      'rgba(255, 160, 122, 0.2)'  // lightsalmon
+      'rgba(16, 185, 129, 0.15)', // emerald-500 with low opacity
+      'rgba(6, 182, 212, 0.15)',  // cyan-500 with low opacity
+      'rgba(52, 211, 153, 0.12)', // emerald-400 with very low opacity
+      'rgba(34, 197, 94, 0.18)',  // green-500 with low opacity
+      'rgba(14, 165, 233, 0.12)', // blue-500 with very low opacity
+      'rgba(59, 130, 246, 0.15)', // blue-500 with low opacity
+      'rgba(139, 92, 246, 0.10)', // violet-500 with very low opacity
+      'rgba(168, 85, 247, 0.12)'  // purple-500 with low opacity
     ];
 
     const bubbleCount = 20; // Max number of bubbles
@@ -28,9 +30,9 @@ const BubbleBackground = () => {
       const bubble = document.createElement('div');
 
       // Random size and animation parameters
-      const size = Math.floor(Math.random() * 100) + 20; // 20–120px
-      const duration = Math.random() * 20 + 10; // 10–30s
-      const delay = Math.random() * 10; // 0–10s
+      const size = Math.floor(Math.random() * 80) + 30; // 30–110px (slightly larger)
+      const duration = Math.random() * 25 + 15; // 15–40s (slower movement)
+      const delay = Math.random() * 15; // 0–15s
       const left = i * spacing + Math.random() * spacing; // Evenly spaced with randomness
       const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
 
@@ -41,6 +43,8 @@ const BubbleBackground = () => {
       bubble.style.left = `${left}%`;
       bubble.style.bottom = `-${size}px`;
       bubble.style.background = color;
+      bubble.style.boxShadow = `0 0 ${size/3}px ${color}, inset 0 0 ${size/4}px rgba(255,255,255,0.1)`;
+      bubble.style.border = '1px solid rgba(255,255,255,0.1)';
       bubble.style.animation = `floatUp ${duration}s linear ${delay}s infinite`;
 
       // Add bubble to DOM
