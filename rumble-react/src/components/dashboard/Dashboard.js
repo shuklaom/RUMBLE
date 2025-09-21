@@ -358,18 +358,32 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto p-6">
           {/* Header */}
           <header className="flex items-center justify-between mb-8">
-            {/* Hamburger Menu Button */}
-            <button
-              id="hamburger-button"
-              onClick={toggleSidebar}
-              className="lg:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700/50"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            {/* Left Section - Logo and Navigation */}
+            <div className="flex items-center space-x-6">
+              {/* Hamburger Menu Button */}
+              <button
+                id="hamburger-button"
+                onClick={toggleSidebar}
+                className="lg:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700/50"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
 
-            <h1 className="text-3xl font-extrabold">Dashboard</h1>
+              {/* RUMBLE Logo */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center">
+                  <span className="text-slate-900 font-black text-xl">R</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                    RUMBLE
+                  </h1>
+                  <p className="text-xs text-gray-400">Dashboard</p>
+                </div>
+              </div>
+            </div>
             
             {/* User Info */}
             <div className="flex items-center space-x-4">

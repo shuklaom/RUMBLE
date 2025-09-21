@@ -108,7 +108,18 @@ const CreateAccount = () => {
 
       {/* Form card container */}
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl w-full max-w-md shadow-lg z-10">
-        <h1 className="rumble-text mb-6">Create Account</h1>
+        {/* RUMBLE Logo */}
+        <div className="flex items-center justify-center space-x-3 mb-6">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center">
+            <span className="text-slate-900 font-black text-2xl">R</span>
+          </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              RUMBLE
+            </h1>
+            <p className="text-sm text-white/70">Create Account</p>
+          </div>
+        </div>
         
         {error && (
           <div className="bg-red-500/20 text-red-100 p-3 rounded-lg mb-4 text-center" role="alert">
