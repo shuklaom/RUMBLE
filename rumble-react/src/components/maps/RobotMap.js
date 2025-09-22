@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 // Main map component that uses Google Maps
-const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, center, zoom }) => {
+const MapComponent = ({ robots, selectedRobot, onRobotSelect, center, zoom }) => {
   const ref = useRef();
   const [map, setMap] = useState();
   const markersRef = useRef([]);
@@ -12,10 +12,9 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
   const robotToDisplay = useMemo(() => {
     if (!selectedRobot || !selectedRobot.location) return null;
     
-    // Check if it's from regular robots or shared robots
-    const allRobots = [...robots, ...sharedRobots];
-    return allRobots.find(robot => robot.id === selectedRobot.id);
-  }, [robots, sharedRobots, selectedRobot]);
+    // Find the robot in the robots array
+    return robots.find(robot => robot.id === selectedRobot.id);
+  }, [robots, selectedRobot]);
 
   // Memoized map styles to prevent recreation
   const mapStyles = useMemo(() => [
@@ -81,7 +80,6 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
 
     // If a robot is selected, show only that robot
     if (robotToDisplay && robotToDisplay.location) {
-      const isShared = sharedRobots.some(sr => sr.id === robotToDisplay.id);
       
       // Create single marker for selected robot
       const getMarkerColor = () => {
@@ -114,13 +112,11 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
           <div style="padding: 10px; min-width: 200px; font-family: system-ui;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
               <h3 style="margin: 0; font-size: 16px; font-weight: 600;">${robotToDisplay.name}</h3>
-              ${isShared ? '<span style="background: #E0E7FF; color: #5B21B6; padding: 2px 8px; border-radius: 12px; font-size: 10px;">Shared</span>' : ''}
             </div>
             <div style="font-size: 14px; line-height: 1.4;">
               <div><strong>Status:</strong> ${robotToDisplay.status.charAt(0).toUpperCase() + robotToDisplay.status.slice(1)}</div>
               <div><strong>Battery:</strong> ${robotToDisplay.batteryLevel}%</div>
               ${robotToDisplay.trashCollected ? `<div><strong>Trash Collected:</strong> ${robotToDisplay.trashCollected} kg</div>` : ''}
-              ${isShared && robotToDisplay.sharedBy ? `<div><strong>Shared by:</strong> ${robotToDisplay.sharedBy}</div>` : ''}
             </div>
           </div>
         `);
@@ -138,7 +134,7 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
       }
     } else {
       // No robot selected - show all robots for context
-      const allRobotsWithLocation = [...robots, ...sharedRobots].filter(robot => robot.location);
+      const allRobotsWithLocation = robots.filter(robot => robot.location);
       
       allRobotsWithLocation.forEach(robot => {
         const getMarkerColor = () => {
@@ -173,7 +169,7 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
       });
     }
 
-  }, [map, robotToDisplay, robots, sharedRobots, onRobotSelect]);
+  }, [map, robotToDisplay, robots, onRobotSelect]);
 
   // Update markers when data changes
   useEffect(() => {
@@ -186,7 +182,6 @@ const MapComponent = ({ robots, sharedRobots, selectedRobot, onRobotSelect, cent
 // Optimized wrapper component
 const RobotMap = ({ 
   robots = [], 
-  sharedRobots = [], 
   selectedRobot, 
   onRobotSelect,
   height = "400px",
@@ -207,8 +202,7 @@ const RobotMap = ({
     }
     
     // If no robot selected but robots exist, center on first robot with location
-    const allRobots = [...robots, ...sharedRobots];
-    const robotWithLocation = allRobots.find(robot => robot.location);
+    const robotWithLocation = robots.find(robot => robot.location);
     if (robotWithLocation) {
       return {
         lat: robotWithLocation.location.lat,
@@ -217,7 +211,7 @@ const RobotMap = ({
     }
     
     return defaultCenter;
-  }, [selectedRobot, robots, sharedRobots]);
+  }, [selectedRobot, robots]);
 
   const render = useCallback((status) => {
     switch (status) {
@@ -245,7 +239,6 @@ const RobotMap = ({
           <div className="relative w-full h-full">
             <MapComponent
               robots={robots}
-              sharedRobots={sharedRobots}
               selectedRobot={selectedRobot}
               onRobotSelect={onRobotSelect}
               center={mapCenter}
@@ -256,7 +249,7 @@ const RobotMap = ({
       default:
         return null;
     }
-  }, [robots, sharedRobots, selectedRobot, onRobotSelect, mapCenter]);
+  }, [robots, selectedRobot, onRobotSelect, mapCenter]);
 
   // Check API key
   if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
