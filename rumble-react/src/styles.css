@@ -1,6 +1,7 @@
 /* Global styles for the RUMBLE application */
 
-/* Import Tailwind CSS */
+/* Tailwind CSS directives - processed by PostCSS during build */
+/* These may show as "unknown" in some editors but are valid */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
