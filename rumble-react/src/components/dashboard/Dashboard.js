@@ -390,7 +390,7 @@ const Dashboard = () => {
 
               {/* RUMBLE Logo */}
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg animate-pulse-glow">
                   <span className="text-slate-900 font-black text-xl">R</span>
                 </div>
                 <div>
