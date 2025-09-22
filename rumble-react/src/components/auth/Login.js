@@ -281,6 +281,19 @@ const Login = () => {
                 </Link>
               </div>
               
+              {/* Forgot password link */}
+              <div className="text-center">
+                <p className="text-slate-400">
+                  Forgot your password?{' '}
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-cyan-400 hover:text-cyan-300 font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 rounded px-1"
+                  >
+                    Reset it
+                  </Link>
+                </p>
+              </div>
+              
               {/* Create account link */}
               <div className="text-center">
                 <p className="text-slate-400">

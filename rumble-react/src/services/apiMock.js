@@ -184,6 +184,48 @@ export const authService = {
     } else {
       throw new Error('User not found');
     }
+  },
+
+  forgotPassword: async (email) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Check if user exists
+    const user = users.find(u => u.email === email);
+    
+    if (!user) {
+      // For security, we don't reveal if the email exists or not
+      // In a real app, you might still want to show success to prevent email enumeration
+      throw new Error('If this email exists in our system, you will receive a password reset link.');
+    }
+    
+    // In a real app, this would:
+    // 1. Generate a secure reset token
+    // 2. Store it in the database with an expiration time
+    // 3. Send an email with the reset link
+    
+    // For demo purposes, we'll just return success
+    return {
+      success: true,
+      message: 'Password reset email sent successfully'
+    };
+  },
+
+  resetPassword: async (token, newPassword) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In a real app, this would:
+    // 1. Verify the reset token
+    // 2. Check if it's not expired
+    // 3. Update the user's password
+    // 4. Invalidate the reset token
+    
+    // For demo purposes, we'll just return success
+    return {
+      success: true,
+      message: 'Password reset successfully'
+    };
   }
 };
 
