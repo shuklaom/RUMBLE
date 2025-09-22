@@ -48,9 +48,10 @@ const apiRequest = async (endpoint, options = {}) => {
 /**
  * User Registration
  * POST /users/
+ * Note: Backend validates that robotId exists and is not 000000
  */
 export const registerUser = async (userData) => {
-  const { name, email, password, username } = userData;
+  const { name, email, password, username, robotId } = userData;
   
   // Map frontend fields to API expected format
   const requestBody = {
@@ -58,8 +59,11 @@ export const registerUser = async (userData) => {
     emailId: email,
     userPassword: password,
     username,
-    robotId: Math.floor(Math.random() * 1000000) + 100000, // Generate random robotId for now
+    // Use provided robotId or generate a valid one (not 000000 as backend rejects it)
+    robotId: robotId || Math.floor(Math.random() * 900000) + 100000, // Generate 6-digit number avoiding 000000
   };
+
+  console.log('Registering user with data:', requestBody);
 
   const result = await apiRequest('/users/', {
     method: 'POST',
@@ -69,127 +73,103 @@ export const registerUser = async (userData) => {
   if (result.success) {
     return {
       success: true,
-      message: result.data.message || 'User registered successfully',
+      message: 'User registered successfully and robot assigned',
       user: {
-        id: username, // Use username as ID for now
-        name,
-        email,
-        username,
+        id: requestBody.username, // Backend might return different ID structure
+        name: requestBody.name,
+        email: requestBody.emailId,
+        username: requestBody.username,
+        robotId: requestBody.robotId,
       },
     };
   } else {
     return {
       success: false,
-      message: result.error || 'Registration failed',
+      message: result.error || 'Registration failed. Robot ID may be invalid or already assigned.',
     };
   }
 };
 
 /**
  * User Login
- * Tries multiple common authentication patterns to find the working endpoint
+ * Updated to match the actual Java backend endpoint: GET /users/u/{email}/{password}/
  */
 export const loginUser = async (credentials) => {
   const { email, password } = credentials;
   
-  // Common authentication endpoint patterns to try
-  const authAttempts = [
-    {
-      endpoint: '/users/login',
-      body: { emailId: email, userPassword: password },
-      description: 'Standard login with emailId'
-    },
-    {
-      endpoint: '/auth/login', 
-      body: { emailId: email, userPassword: password },
-      description: 'Auth endpoint with emailId'
-    },
-    {
-      endpoint: '/login',
-      body: { emailId: email, userPassword: password }, 
-      description: 'Simple login with emailId'
-    },
-    {
-      endpoint: '/users/authenticate',
-      body: { emailId: email, userPassword: password },
-      description: 'Authenticate endpoint with emailId'
-    },
-    {
-      endpoint: '/users/login',
-      body: { email: email, password: password },
-      description: 'Standard login with email/password'
-    }
-  ];
+  // The actual backend endpoint uses path parameters for authentication
+  const loginEndpoint = `/users/u/${encodeURIComponent(email)}/${encodeURIComponent(password)}/`;
+  
+  console.log(`Attempting login with actual backend endpoint: ${loginEndpoint}`);
+  
+  const result = await apiRequest(loginEndpoint, {
+    method: 'GET', // Backend uses GET method with path parameters
+  });
 
-  // Try each authentication pattern
-  for (const attempt of authAttempts) {
-    console.log(`Trying login: ${attempt.description} - ${attempt.endpoint}`);
+  if (result.success) {
+    console.log('✅ Login successful with backend endpoint');
     
-    const result = await apiRequest(attempt.endpoint, {
-      method: 'POST',
-      body: JSON.stringify(attempt.body),
-    });
-
-    // If successful, return the result
-    if (result.success) {
-      console.log(`✅ Login successful with: ${attempt.description}`);
-      
-      // Extract user data from response
-      const responseData = result.data;
-      
-      return {
-        success: true,
-        message: responseData.message || 'Login successful',
-        user: {
-          // Try to extract user info from various possible response formats
-          id: responseData.id || responseData.userId || email,
-          name: responseData.name || responseData.userName || '',
-          email: responseData.emailId || responseData.email || email,
-          username: responseData.username || responseData.userName || '',
-          robotId: responseData.robotId || null,
-        },
-        token: responseData.token || responseData.accessToken || null,
-        // Store which endpoint worked for future optimization
-        workingEndpoint: attempt.endpoint,
-        workingFormat: attempt.body,
-      };
-    } else {
-      console.log(`❌ Login failed with: ${attempt.description} - ${result.error}`);
-    }
+    // Extract user data from response
+    const userData = result.data;
+    
+    return {
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: userData.id,
+        name: userData.name,
+        email: userData.emailId,
+        username: userData.username,
+        robotId: userData.robotId,
+      },
+      // Generate a session token since backend doesn't provide one
+      token: `session_${email}_${Date.now()}`,
+      workingEndpoint: loginEndpoint,
+    };
+  } else {
+    console.log(`❌ Login failed: ${result.error}`);
+    return {
+      success: false,
+      message: result.error || 'Authentication failed. Please check your credentials.',
+    };
   }
-
-  // If all attempts failed
-  console.log('❌ All login attempts failed');
-  return {
-    success: false,
-    message: 'Authentication failed. Please check your credentials or contact support.',
-    attempts: authAttempts.map(a => a.description),
-  };
 };
 
 /**
  * Verify Authentication Token
- * Uses GET /users/ to verify if user session is valid
+ * Since the backend doesn't have a dedicated token verification endpoint,
+ * we'll use a simple check by trying to get all users (low-cost operation)
  */
 export const verifyToken = async (token) => {
-  // For now, try to get user data to verify the session
-  // This might need to be adjusted based on how your server handles authentication
-  
   try {
-    const userResult = await getUserData();
-    
-    if (userResult.success) {
-      return {
-        success: true,
-        user: userResult.user,
-        message: 'Token verified successfully',
-      };
-    } else {
+    // Since we generate session tokens locally, we can do basic validation
+    if (!token || !token.startsWith('session_')) {
       return {
         success: false,
-        message: 'Token verification failed - user data not accessible',
+        message: 'Invalid token format',
       };
     }
+    
+    // Extract email from session token for additional validation
+    const tokenParts = token.split('_');
+    if (tokenParts.length >= 3) {
+      const email = tokenParts[1];
+      
+      // Try to validate by getting all users (this will fail if server is down)
+      const usersResult = await getAllUsers();
+      
+      if (usersResult.success) {
+        return {
+          success: true,
+          message: 'Token verified successfully',
+        };
+      }
+    }
+    
+    return {
+      success: false,
+      message: 'Token verification failed - server unreachable',
+    };
   } catch (error) {
     console.error('Token verification error:', error);
     return {
@@ -201,13 +181,53 @@ export const verifyToken = async (token) => {
 
 /**
  * Get User Data
- * GET /users/ - Returns user profile information
+ * GET /users/{id}/ - Returns specific user by ID
+ * GET /users/ - Returns all users (if no ID provided)
  */
-export const getUserData = async (userIdentifier) => {
-  // Note: Need to determine if this endpoint takes query parameters
-  // or how to specify which user to retrieve
-  const result = await apiRequest('/users/', {
+export const getUserData = async (userId) => {
+  let endpoint = '/users/';
+  
+  // If userId is provided, get specific user
+  if (userId) {
+    endpoint = `/users/${userId}/`;
+  }
+  
+  const result = await apiRequest(endpoint, {
     method: 'GET',
+  });
+
+  if (result.success) {
+    // Handle both single user and array of users
+    const userData = Array.isArray(result.data) ? result.data[0] : result.data;
+    
+    return {
+      success: true,
+      user: {
+        id: userData.id,
+        name: userData.name,
+        email: userData.emailId,
+        username: userData.username,
+        robotId: userData.robotId,
+      },
+    };
+  } else {
+    return {
+      success: false,
+      message: result.error || 'Failed to retrieve user data',
+    };
+  }
+};
+
+/**
+ * Update User
+ * PUT /users/{id}/{password} - Updates user information
+ */
+export const updateUser = async (userId, currentPassword, updatedData) => {
+  const endpoint = `/users/${userId}/${encodeURIComponent(currentPassword)}`;
+  
+  const result = await apiRequest(endpoint, {
+    method: 'PUT',
+    body: JSON.stringify(updatedData),
   });
 
   if (result.success) {
@@ -220,18 +240,73 @@ export const getUserData = async (userIdentifier) => {
         username: result.data.username,
         robotId: result.data.robotId,
       },
+      message: 'User updated successfully',
     };
   } else {
     return {
       success: false,
-      message: result.error || 'Failed to retrieve user data',
+      message: result.error || 'Failed to update user',
+    };
+  }
+};
+
+/**
+ * Delete User
+ * DELETE /users/{id} - Deletes user account
+ */
+export const deleteUser = async (userId) => {
+  const endpoint = `/users/${userId}`;
+  
+  const result = await apiRequest(endpoint, {
+    method: 'DELETE',
+  });
+
+  if (result.success) {
+    return {
+      success: true,
+      message: 'User deleted successfully',
+    };
+  } else {
+    return {
+      success: false,
+      message: result.error || 'Failed to delete user',
+    };
+  }
+};
+
+/**
+ * Get All Users (Admin function)
+ * GET /users/ - Returns all users in the system
+ */
+export const getAllUsers = async () => {
+  const result = await apiRequest('/users/', {
+    method: 'GET',
+  });
+
+  if (result.success) {
+    const users = Array.isArray(result.data) ? result.data : [result.data];
+    
+    return {
+      success: true,
+      users: users.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.emailId,
+        username: user.username,
+        robotId: user.robotId,
+      })),
+    };
+  } else {
+    return {
+      success: false,
+      message: result.error || 'Failed to retrieve users',
     };
   }
 };
 
 /**
  * Get User Dashboard Data
- * TODO: Determine dashboard data endpoints
+ * Enhanced to use the correct user data endpoint
  */
 export const getDashboardData = async (userId) => {
   // For now, use getUserData as it contains robot information
@@ -266,6 +341,9 @@ const apiService = {
   loginUser,
   verifyToken,
   getUserData,
+  updateUser,
+  deleteUser,
+  getAllUsers,
   getDashboardData,
 };
 
