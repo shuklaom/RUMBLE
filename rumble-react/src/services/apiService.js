@@ -1,9 +1,10 @@
 /**
  * Real API Service for RUMBLE Application
  * Replaces apiMock.js with actual HTTP calls to the server
+ * Using proxy configuration to avoid CORS issues in development
  */
 
-const API_BASE_URL = 'http://sddec25-16.ece.iastate.edu:8080';
+const API_BASE_URL = ''; // Empty base URL to use proxy configuration
 
 /**
  * HTTP utility functions
@@ -92,45 +93,41 @@ export const registerUser = async (userData) => {
 
 /**
  * User Login
- * Updated to match the actual Java backend endpoint: GET /users/u/{email}/{password}/
+ * Using standard POST request to /auth/login endpoint
  */
 export const loginUser = async (credentials) => {
   const { email, password } = credentials;
   
-  // The actual backend endpoint uses path parameters for authentication
-  const loginEndpoint = `/users/u/${encodeURIComponent(email)}/${encodeURIComponent(password)}/`;
+  console.log(`Attempting login with credentials for: ${email}`);
   
-  console.log(`Attempting login with actual backend endpoint: ${loginEndpoint}`);
-  
-  const result = await apiRequest(loginEndpoint, {
-    method: 'GET', // Backend uses GET method with path parameters
+  const result = await apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
   });
 
-  if (result.success) {
-    console.log('✅ Login successful with backend endpoint');
+  if (result.success || result.token || (result.user && !result.error)) {
+    console.log('✅ Login successful');
     
     // Extract user data from response
-    const userData = result.data;
+    const userData = result.data || result.user || result;
     
     return {
       success: true,
       message: 'Login successful',
+      token: result.token || userData.token || `session_${email}_${Date.now()}`,
       user: {
         id: userData.id,
         name: userData.name,
-        email: userData.emailId,
+        email: userData.email || userData.emailId || email,
         username: userData.username,
         robotId: userData.robotId,
       },
-      // Generate a session token since backend doesn't provide one
-      token: `session_${email}_${Date.now()}`,
-      workingEndpoint: loginEndpoint,
     };
   } else {
-    console.log(`❌ Login failed: ${result.error}`);
+    console.log(`❌ Login failed: ${result.error || result.message}`);
     return {
       success: false,
-      message: result.error || 'Authentication failed. Please check your credentials.',
+      message: result.error || result.message || 'Authentication failed. Please check your credentials.',
     };
   }
 };
