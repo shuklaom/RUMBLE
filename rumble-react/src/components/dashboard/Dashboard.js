@@ -57,7 +57,7 @@ const Dashboard = () => {
     
     try {
       // Fetch the robot details
-      const robot = await robotService.getRobotById(robotId, token);
+      const robot = await apiService.getRobotById(robotId, token);
       setSelectedRobot(robot);
     } catch (err) {
       console.error('Error fetching robot details:', err);
@@ -75,19 +75,19 @@ const Dashboard = () => {
     
     try {
       setLoading(true);
-      const result = await robotService.sendCommand(selectedRobotId, command, token);
+      const result = await apiService.sendCommand(selectedRobotId, command, token);
       
       if (result.success) {
         // Refresh the selected robot data
-        const updatedRobot = await robotService.getRobotById(selectedRobotId, token);
+        const updatedRobot = await apiService.getRobotById(selectedRobotId, token);
         setSelectedRobot(updatedRobot);
         
         // Refresh the robots list
-        const robots = await robotService.getAllRobots(token);
+        const robots = await apiService.getAllRobots(token);
         setRobotData(robots);
         
         // Refresh dashboard stats
-        const stats = await robotService.getDashboardStats(token);
+        const stats = await apiService.getDashboardStats(token);
         setDashboardStats(stats);
       } else {
         setError(`Failed to ${command} robot: ${result.message}`);

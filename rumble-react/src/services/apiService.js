@@ -331,6 +331,130 @@ export const getDashboardData = async (userId) => {
 };
 
 /**
+ * Robot Management Functions
+ * GET /robots/ - Get all robots
+ */
+export const getAllRobots = async (token) => {
+  const result = await apiRequest('/robots/', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (result.success) {
+    const robots = Array.isArray(result.data) ? result.data : [result.data];
+    return robots.map(robot => ({
+      id: robot.id,
+      name: robot.name || `Robot ${robot.id}`,
+      status: robot.status || 'Unknown',
+      batteryLevel: robot.batteryLevel || 0,
+      location: robot.location || { x: 0, y: 0 },
+    }));
+  } else {
+    console.error('Failed to fetch robots:', result.error);
+    return [];
+  }
+};
+
+/**
+ * Get Robot by ID
+ * GET /robots/{id}/ - Get specific robot
+ */
+export const getRobotById = async (robotId, token) => {
+  const result = await apiRequest(`/robots/${robotId}/`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (result.success) {
+    const robot = result.data;
+    return {
+      id: robot.id,
+      name: robot.name || `Robot ${robot.id}`,
+      status: robot.status || 'Unknown',
+      batteryLevel: robot.batteryLevel || 0,
+      location: robot.location || { x: 0, y: 0 },
+    };
+  } else {
+    throw new Error(result.error || 'Failed to fetch robot details');
+  }
+};
+
+/**
+ * Send Command to Robot
+ * POST /robots/{id}/command - Send command to robot
+ */
+export const sendCommand = async (robotId, command, token) => {
+  const result = await apiRequest(`/robots/${robotId}/command`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ command }),
+  });
+
+  if (result.success) {
+    return {
+      success: true,
+      message: `Successfully sent ${command} command to robot`,
+    };
+  } else {
+    return {
+      success: false,
+      message: result.error || `Failed to send ${command} command`,
+    };
+  }
+};
+
+/**
+ * Get Dashboard Statistics
+ * GET /dashboard/stats - Get dashboard stats
+ */
+export const getDashboardStats = async (token) => {
+  const result = await apiRequest('/dashboard/stats', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (result.success) {
+    return result.data;
+  } else {
+    // Return mock data if endpoint doesn't exist yet
+    return {
+      totalRobots: 0,
+      activeRobots: 0,
+      totalBattles: 0,
+      winRate: 0,
+    };
+  }
+};
+
+/**
+ * Forgot Password
+ * POST /auth/forgot-password - Send password reset email
+ */
+export const forgotPassword = async (email) => {
+  const result = await apiRequest('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+
+  if (result.success) {
+    return {
+      success: true,
+      message: 'Password reset email sent successfully',
+    };
+  } else {
+    throw new Error(result.error || 'Failed to send password reset email');
+  }
+};
+
+/**
  * Default export with all API functions
  */
 const apiService = {
@@ -342,6 +466,11 @@ const apiService = {
   deleteUser,
   getAllUsers,
   getDashboardData,
+  getAllRobots,
+  getRobotById,
+  sendCommand,
+  getDashboardStats,
+  forgotPassword,
 };
 
 export default apiService;
