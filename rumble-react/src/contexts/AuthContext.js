@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../services/apiMock';
+import apiService from '../services/apiService';
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -25,16 +25,25 @@ export const AuthProvider = ({ children }) => {
       try {
         const user = JSON.parse(storedUser);
         
-        // Verify token with the mock API
-        authService.getCurrentUser(storedToken)
-          .then(() => {
-            // Only set user as authenticated if token verification succeeds
-            setCurrentUser(user);
-            setToken(storedToken);
+        // Verify token with the real API
+        apiService.verifyToken(storedToken)
+          .then((result) => {
+            if (result.success) {
+              // Only set user as authenticated if token verification succeeds
+              setCurrentUser(user);
+              setToken(storedToken);
+            } else {
+              // If token verification fails, log the user out
+              console.log('Token verification failed, clearing stored auth data');
+              localStorage.removeItem('rumbleUser');
+              localStorage.removeItem('rumbleToken');
+              setCurrentUser(null);
+              setToken(null);
+            }
           })
           .catch(() => {
             // If token verification fails, log the user out
-            console.log('Token verification failed, clearing stored auth data');
+            console.log('Token verification error, clearing stored auth data');
             localStorage.removeItem('rumbleUser');
             localStorage.removeItem('rumbleToken');
             setCurrentUser(null);
@@ -57,17 +66,29 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null);
     try {
-      const response = await authService.login(email, password);
+      const response = await apiService.loginUser({ email, password });
       
-      // Store user and token
-      localStorage.setItem('rumbleUser', JSON.stringify(response.user));
-      localStorage.setItem('rumbleToken', response.token);
-      
-      // Update state
-      setCurrentUser(response.user);
-      setToken(response.token);
-      
-      return response.user;
+      if (response.success) {
+        // Store user and token
+        localStorage.setItem('rumbleUser', JSON.stringify(response.user));
+        
+        // Store token if provided, otherwise use email as fallback identifier
+        const authToken = response.token || `session_${email}_${Date.now()}`;
+        localStorage.setItem('rumbleToken', authToken);
+        
+        // Update state
+        setCurrentUser(response.user);
+        setToken(authToken);
+        
+        // Log successful login endpoint for debugging
+        if (response.workingEndpoint) {
+          console.log(`✅ Login successful using: ${response.workingEndpoint}`);
+        }
+        
+        return response.user;
+      } else {
+        throw new Error(response.message || 'Login failed');
+      }
     } catch (err) {
       setError(err.message);
       throw err;
@@ -75,20 +96,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Signup function
-  const signup = async (email, password) => {
+  const signup = async (userData) => {
     setError(null);
     try {
-      const response = await authService.register(email, password);
+      const response = await apiService.registerUser(userData);
       
-      // Store user and token
-      localStorage.setItem('rumbleUser', JSON.stringify(response.user));
-      localStorage.setItem('rumbleToken', response.token);
-      
-      // Update state
-      setCurrentUser(response.user);
-      setToken(response.token);
-      
-      return response.user;
+      if (response.success) {
+        // Store user and token
+        localStorage.setItem('rumbleUser', JSON.stringify(response.user));
+        
+        // Generate a session token since the server doesn't return one
+        const authToken = `session_${userData.email}_${Date.now()}`;
+        localStorage.setItem('rumbleToken', authToken);
+        
+        // Update state
+        setCurrentUser(response.user);
+        setToken(authToken);
+        
+        return response.user;
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
     } catch (err) {
       setError(err.message);
       throw err;
@@ -97,18 +125,12 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = async () => {
-    try {
-      if (token) {
-        await authService.logout();
-      }
-    } finally {
-      // Clear local storage and state regardless of API response
-      localStorage.removeItem('rumbleUser');
-      localStorage.removeItem('rumbleToken');
-      setCurrentUser(null);
-      setToken(null);
-      setError(null);
-    }
+    // Clear local storage and state (no server logout endpoint needed)
+    localStorage.removeItem('rumbleUser');
+    localStorage.removeItem('rumbleToken');
+    setCurrentUser(null);
+    setToken(null);
+    setError(null);
   };
 
   // Function to clear authentication state (for debugging/testing)
