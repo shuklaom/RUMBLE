@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { robotService } from '../../services/apiMock';
+import apiService from '../../services/apiService';
 import RobotMap from '../maps/RobotMap';
 
 const Dashboard = () => {
@@ -23,7 +23,7 @@ const Dashboard = () => {
         setLoading(true);
         
         // Fetch robots owned by user
-        const robots = await robotService.getAllRobots(token);
+        const robots = await apiService.getAllRobots(token);
         setRobotData(robots);
         
         // Set the first robot as selected by default
@@ -33,7 +33,7 @@ const Dashboard = () => {
         }
         
         // Fetch dashboard statistics
-        const stats = await robotService.getDashboardStats(token);
+        const stats = await apiService.getDashboardStats(token);
         setDashboardStats(stats);
         
         setError('');

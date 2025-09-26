@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { authService } from '../../services/apiMock';
+import apiService from '../../services/apiService';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -48,7 +48,7 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      await authService.forgotPassword(email);
+      await apiService.forgotPassword(email);
       setIsSubmitted(true);
     } catch (err) {
       setError(err.message || 'Failed to send reset email. Please try again.');
