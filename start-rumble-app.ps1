@@ -7,9 +7,15 @@ Write-Host "│            RUMBLE React Application              │" -Foregroun
 Write-Host "└──────────────────────────────────────────────────┘" -ForegroundColor Cyan
 Write-Host ""
 
+<<<<<<< HEAD
 # Navigate to the project directory relative to this script
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location "$scriptPath\rumble-react"
+=======
+# Navigate to the rumble-react directory relative to this script's location
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location (Join-Path $scriptPath "rumble-react")
+>>>>>>> e11ac569d39b0a05fe2ef490b2d8f9aced806109
 
 # Security notice
 Write-Host "SECURITY NOTICE:" -ForegroundColor Yellow
