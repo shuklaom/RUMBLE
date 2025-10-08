@@ -23,7 +23,17 @@ module.exports = function(app) {
       target: 'http://sddec25-16.ece.iastate.edu:8080',
       changeOrigin: true,
       secure: false,
-      logLevel: 'debug'
+      logLevel: 'debug',
+      onError: function(err, req, res) {
+        console.log('Users proxy error:', err);
+      },
+      onProxyReq: function(proxyReq, req, res) {
+        console.log('Proxying users request:', req.url);
+        console.log('Original URL:', req.originalUrl);
+      },
+      onProxyRes: function(proxyRes, req, res) {
+        console.log('Users proxy response status:', proxyRes.statusCode);
+      }
     })
   );
   

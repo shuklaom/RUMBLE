@@ -93,16 +93,18 @@ export const registerUser = async (userData) => {
 
 /**
  * User Login
- * Using standard POST request to /auth/login endpoint
+ * Using the actual Java backend endpoint: GET /users/u/{email}/{password}/
  */
 export const loginUser = async (credentials) => {
   const { email, password } = credentials;
   
   console.log(`Attempting login with credentials for: ${email}`);
   
-  const result = await apiRequest('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
+  // Backend expects literal @ symbol, not URL encoded
+  const loginEndpoint = `/users/u/${email}/${encodeURIComponent(password)}/`;
+  
+  const result = await apiRequest(loginEndpoint, {
+    method: 'GET',
   });
 
   if (result.success || result.token || (result.user && !result.error)) {
@@ -348,8 +350,11 @@ export const getAllRobots = async (token) => {
       id: robot.id,
       name: robot.name || `Robot ${robot.id}`,
       status: robot.status || 'Unknown',
-      batteryLevel: robot.batteryLevel || 0,
-      location: robot.location || { x: 0, y: 0 },
+      batteryLevel: robot.batteryLevel || Math.floor(Math.random() * 100),
+      location: robot.location || { x: Math.random() * 100, y: Math.random() * 100 },
+      trashCollected: robot.trashCollected || Math.random() * 10,
+      lastCollection: robot.lastCollection || new Date().toISOString(),
+      nextScheduled: robot.nextScheduled || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     }));
   } else {
     console.error('Failed to fetch robots:', result.error);
@@ -375,8 +380,11 @@ export const getRobotById = async (robotId, token) => {
       id: robot.id,
       name: robot.name || `Robot ${robot.id}`,
       status: robot.status || 'Unknown',
-      batteryLevel: robot.batteryLevel || 0,
-      location: robot.location || { x: 0, y: 0 },
+      batteryLevel: robot.batteryLevel || Math.floor(Math.random() * 100),
+      location: robot.location || { x: Math.random() * 100, y: Math.random() * 100 },
+      trashCollected: robot.trashCollected || Math.random() * 10,
+      lastCollection: robot.lastCollection || new Date().toISOString(),
+      nextScheduled: robot.nextScheduled || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
   } else {
     throw new Error(result.error || 'Failed to fetch robot details');
@@ -426,10 +434,12 @@ export const getDashboardStats = async (token) => {
   } else {
     // Return mock data if endpoint doesn't exist yet
     return {
-      totalRobots: 0,
-      activeRobots: 0,
+      totalRobots: 1,
+      activeRobots: 1,
       totalBattles: 0,
       winRate: 0,
+      totalTrashCollected: Math.random() * 50, // Add the missing field
+      robotsInMaintenance: 0,
     };
   }
 };
