@@ -1,9 +1,10 @@
 /**
  * Real API Service for RUMBLE Application
  * Replaces apiMock.js with actual HTTP calls to the server
+ * Updated to connect to local backend server (no proxy needed)
  */
 
-const API_BASE_URL = 'http://sddec25-16.ece.iastate.edu:8080';
+const API_BASE_URL = 'http://10.29.162.147:8080';
 
 /**
  * HTTP utility functions
