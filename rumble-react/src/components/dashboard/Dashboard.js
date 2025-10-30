@@ -56,9 +56,10 @@ const Dashboard = () => {
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
     
     try {
-      // Fetch the robot details
-      const robot = await robotService.getRobotById(robotId, token);
-      setSelectedRobot(robot);
+      // TODO: Implement robot details fetching once robot API is ready
+      // const robot = await apiService.getRobotById(robotId, token);
+      // setSelectedRobot(robot);
+      console.log('Robot details fetch placeholder - robotId:', robotId);
     } catch (err) {
       console.error('Error fetching robot details:', err);
       setError('Failed to load robot details.');
@@ -75,23 +76,27 @@ const Dashboard = () => {
     
     try {
       setLoading(true);
-      const result = await robotService.sendCommand(selectedRobotId, command, token);
+      // TODO: Implement robot command sending once robot API is ready
+      // const result = await apiService.sendRobotCommand(selectedRobotId, command, token);
       
-      if (result.success) {
+      // Placeholder for now
+      console.log(`Robot command placeholder - ${command} for robot:`, selectedRobotId);
+      
+      // if (result.success) {
         // Refresh the selected robot data
-        const updatedRobot = await robotService.getRobotById(selectedRobotId, token);
-        setSelectedRobot(updatedRobot);
+        // const updatedRobot = await apiService.getRobotById(selectedRobotId, token);
+        // setSelectedRobot(updatedRobot);
         
         // Refresh the robots list
-        const robots = await robotService.getAllRobots(token);
-        setRobotData(robots);
+        // const robots = await apiService.getAllRobots(token);
+        // setRobotData(robots);
         
         // Refresh dashboard stats
-        const stats = await robotService.getDashboardStats(token);
-        setDashboardStats(stats);
-      } else {
-        setError(`Failed to ${command} robot: ${result.message}`);
-      }
+        // const stats = await apiService.getDashboardStats(token);
+        // setDashboardStats(stats);
+      // } else {
+      //   setError(`Failed to ${command} robot: ${result.message}`);
+      // }
     } catch (err) {
       console.error(`Error sending ${command} command:`, err);
       setError(`Failed to ${command} robot. Please try again.`);

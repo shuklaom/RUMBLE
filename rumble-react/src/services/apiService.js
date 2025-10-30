@@ -154,7 +154,7 @@ export const verifyToken = async (token) => {
     // Extract email from session token for additional validation
     const tokenParts = token.split('_');
     if (tokenParts.length >= 3) {
-      const email = tokenParts[1];
+      // Email available in tokenParts[1] if needed for future validation
       
       // Try to validate by getting all users (this will fail if server is down)
       const usersResult = await getAllUsers();
